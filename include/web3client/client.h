@@ -15,22 +15,21 @@ using WsHandshakeSucHandler = std::function<void(WsSession::Ptr)>;
 class Client : public WsService
 {
  public:
-    Client(WsConfig::ConstPtr _config) : WsService(_config)
-    {
-        set_messageFactory(std::make_shared<RpcMessageFactory>());
-    }
+    ~Client() {}
+
+    static std::shared_ptr<Client> get_instance(WsConfig::ConstPtr _config = nullptr);
 
     void init_jsonrpc();
 
-    JsonRpcImpl::Ptr jsonrpc()
-    {
-        return m_jsonrpc;
-    }
+    JsonRpcImpl::Ptr jsonrpc();
 
     virtual void start() override;
     virtual void stop() override;
 
  private:
+    Client() = delete;
+    Client(WsConfig::ConstPtr _config);
+
     virtual void on_connect(Error::Ptr _error, WsSession::Ptr _session) override;
     virtual void on_disconnect(Error::Ptr _error, WsSession::Ptr _session) override;
 
@@ -52,7 +51,7 @@ class Client : public WsService
     }
 
     uint32_t m_handshakeTimeout = 10000;
-    std::atomic<uint32_t> m_handshakeSucCount = 0;
+    std::atomic<uint32_t> m_handshakeSucCount{0};
     WsHandshakeSucHandler m_handshakeSucHandler;
     JsonRpcImpl::Ptr m_jsonrpc;
 };

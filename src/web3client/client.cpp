@@ -7,14 +7,43 @@
 #include "web3client/rpc/message.h"
 namespace jsonrpc::ws
 {
+Client::Client(WsConfig::ConstPtr _config) : WsService(_config)
+{
+    set_messageFactory(std::make_shared<RpcMessageFactory>());
+}
+
 void Client::start()
 {
     WsService::start();
     wait_for_connectionEstablish();
 }
+
 void Client::stop()
 {
     WsService::stop();
+}
+
+std::shared_ptr<Client> Client::get_instance(WsConfig::ConstPtr _config)
+{
+    static std::shared_ptr<Client> client;
+    if (client == nullptr) {
+        if (_config == nullptr) {
+            throw std::invalid_argument("websocket config is null");
+        }
+
+        client = std::shared_ptr<Client>(new Client(_config));
+    }
+
+    return client;
+}
+
+JsonRpcImpl::Ptr Client::jsonrpc()
+{
+    if (m_jsonrpc == nullptr) {
+        throw std::runtime_error("JSON_RPC cannot to be initialized");
+    }
+
+    return m_jsonrpc;
 }
 
 void Client::wait_for_connectionEstablish()

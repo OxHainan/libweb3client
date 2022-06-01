@@ -10,7 +10,8 @@ int main()
 {
     auto config = std::make_shared<WsConfig>();
     config->set_endpoint("127.0.0.1", 8546);
-    auto service = std::make_shared<Client>(config);
+    auto service = Client::get_instance(config);
+
     service->init_jsonrpc();
     service->start();
     std::cout << "Starting client..." << std::endl;
@@ -23,7 +24,7 @@ int main()
             if (_error && _error->errorCode() != 0) {
                 std::cout << "errorCode: " << _error->errorCode() << "  errorMessage : " << _error->errorMessage()
                           << std::endl;
-
+                p.set_value(false);
                 return;
             }
 
