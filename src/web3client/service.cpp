@@ -8,8 +8,8 @@
 namespace jsonrpc::ws
 {
 WsService::WsService(WsConfig::ConstPtr _config) :
-  m_config(_config),
   m_iocThreadCount(_config->thread_pool_count()),
+  m_config(_config),
   m_ioc(std::make_shared<boost::asio::io_context>(m_iocThreadCount)),
   m_connector(std::make_shared<WsConnector>(m_ioc)),
   //   m_messageFactory(std::make_shared<RpcMessageFactory>()),

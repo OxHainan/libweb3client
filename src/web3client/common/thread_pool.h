@@ -16,7 +16,7 @@ class ThreadPool
 
     explicit ThreadPool(const std::string& name, size_t size) : m_name(name), m_work(m_service)
     {
-        for (auto i = 0; i < size; i++) {
+        for (size_t i = 0; i < size; i++) {
             m_workers.create_thread([this] {
                 pthread_setThreadName(m_name);
                 m_service.run();

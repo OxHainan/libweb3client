@@ -8,6 +8,7 @@
 #include "web3client/stream.h"
 
 #include <atomic>
+#include <unordered_map>
 
 namespace jsonrpc::ws
 {
@@ -88,10 +89,9 @@ class WsSession : public std::enable_shared_from_this<WsSession>
     WsConnectHandler m_connectHandler;
     WsDisconnectHandler m_disconnectHandler;
     WsRecvMessageHandler m_recvMessageHandler;
-
-    std::shared_ptr<WsMessageFactory> m_messageFactory;
-    std::shared_ptr<ThreadPool> m_threadPool;
     std::shared_ptr<boost::asio::io_context> m_ioc;
+    std::shared_ptr<ThreadPool> m_threadPool;
+    std::shared_ptr<WsMessageFactory> m_messageFactory;
 
     struct Message
     {

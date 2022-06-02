@@ -63,12 +63,11 @@ class WsService : public std::enable_shared_from_this<WsService>
     bool m_running{false};
 
     size_t m_iocThreadCount;
+    WsConfig::ConstPtr m_config;
     std::shared_ptr<boost::asio::io_context> m_ioc;
 
-    ThreadPool::Ptr m_threadPool;
-    WsConfig::ConstPtr m_config;
     WsConnector::Ptr m_connector;
-
+    ThreadPool::Ptr m_threadPool;
     std::shared_ptr<std::vector<std::thread>> m_iocThreads;
     std::shared_ptr<boost::asio::deadline_timer> m_reconnect;
     std::shared_ptr<boost::asio::deadline_timer> m_heartbeat;

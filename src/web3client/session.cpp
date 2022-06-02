@@ -17,13 +17,13 @@ WsSession::WsSession(
     WsStreamDelegate::Ptr _streamDelegate,
     ThreadPool::Ptr _threadPool,
     WsMessageFactory::Ptr _messageFactory) :
+  m_endpoint(_streamDelegate->remote_endpoint()),
+  m_sendMsgTimeout(_config->send_msg_timeout()),
+  m_maxMessageCount(_config->max_msg_size()),
   m_streamDelegate(_streamDelegate),
   m_ioc(_ioc),
   m_threadPool(_threadPool),
-  m_messageFactory(_messageFactory),
-  m_endpoint(_streamDelegate->remote_endpoint()),
-  m_sendMsgTimeout(_config->send_msg_timeout()),
-  m_maxMessageCount(_config->max_msg_size())
+  m_messageFactory(_messageFactory)
 {}
 
 void WsSession::drop(uint32_t reason)
