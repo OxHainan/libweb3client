@@ -7,8 +7,8 @@ find_package(Boost 1.79.0 REQUIRED thread)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/exported)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/exported/intx/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/intx/include)
 
 file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 set(Boost_USE_STATIC_LIBS ON)
