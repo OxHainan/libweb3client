@@ -52,7 +52,6 @@ struct JsonSerialiser
         static_assert(std::is_convertible_v<T, nlohmann::json>, "Cannot convert this type to JSON");
         const nlohmann::json j = t;
         const auto dumped = j.dump();
-        std::cout << dumped << std::endl;
         return bytes(dumped.begin(), dumped.end());
     }
 
@@ -148,7 +147,7 @@ struct EthBalanceTag
     static constexpr auto name = "eth_getBalance";
 };
 
-using EthBalance = RpcBuilder<EthBalanceTag, AddressWithBlock, uint256>;
+using EthBalance = RpcBuilder<EthBalanceTag, AddressWithBlock, uint256_t>;
 
 struct StorageAt
 {
