@@ -5,6 +5,8 @@
 #include "web3client/common/consts.h"
 #include "web3client/message.h"
 
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
 #include <intx/intx.hpp>
 #include <nlohmann/json.hpp>
 
@@ -12,8 +14,6 @@ namespace jsonrpc::ws
 {
 
 using uint256_t = intx::uint256;
-using uint256 = intx::uint256;
-// to/from json converters
 
 struct ProcedureCallBase
 {
@@ -52,6 +52,7 @@ struct JsonSerialiser
         static_assert(std::is_convertible_v<T, nlohmann::json>, "Cannot convert this type to JSON");
         const nlohmann::json j = t;
         const auto dumped = j.dump();
+        std::cout << dumped << std::endl;
         return bytes(dumped.begin(), dumped.end());
     }
 
@@ -132,7 +133,10 @@ inline void from_json(const nlohmann::json& j, AddressWithBlock& s)
     s.address = j[0];
     s.block_id = j[1];
 }
-
+inline std::string to_hex_string(const uint256_t& v)
+{
+    return fmt::format("0x{}", intx::hex(v));
+}
 struct EthSyncingTag
 {
     static constexpr auto name = "eth_syncing";
@@ -144,7 +148,36 @@ struct EthBalanceTag
     static constexpr auto name = "eth_getBalance";
 };
 
-using EthBalance = RpcBuilder<EthBalanceTag, AddressWithBlock, void>;
+using EthBalance = RpcBuilder<EthBalanceTag, AddressWithBlock, uint256>;
+
+struct StorageAt
+{
+    uint256_t address;
+    uint256_t key;
+    BlockID block_id = DefaultBlockID;
+};
+
+inline void to_json(nlohmann::json& j, const StorageAt& s)
+{
+    j = nlohmann::json::array();
+    j.push_back(to_hex_string(s.address));
+    j.push_back(to_hex_string(s.key));
+    j.push_back(s.block_id);
+}
+
+inline void from_json(const nlohmann::json& j, StorageAt& s)
+{
+    // s.address = j[0].get<decltype(s.address)>();
+    // s.key = j[1].get<decltype(s.key)>();
+    s.block_id = j[2];
+}
+
+struct EthGetStorageAtTag
+{
+    static constexpr auto name = "eth_getStorageAt";
+};
+
+using EthGetStorageAt = RpcBuilder<EthGetStorageAtTag, StorageAt, uint256_t>;
 
 class RpcMessageFactory : public WsMessageFactory
 {
