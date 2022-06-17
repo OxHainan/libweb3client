@@ -6,6 +6,7 @@
 #include "web3client/rpc/message.h"
 
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
 namespace jsonrpc::ws
 {
@@ -13,6 +14,7 @@ struct Response
 {
     uint16_t id;
     std::vector<uint8_t> result;
+    std::optional<std::vector<uint8_t>> error = std::nullopt;
     friend void from_json(const nlohmann::json& j, Response& r);
     friend void to_json(nlohmann::json& j, const Response& r);
 };
@@ -32,7 +34,14 @@ inline void from_json(const nlohmann::json& j, Response& r)
     }
 
     r.id = j[ID];
-    // r.result = j[RESULT];
+
+    auto search = j.find(RESULT);
+    if (search == j.end()) {
+        auto err = j[ERR].dump();
+        r.error = std::vector<uint8_t>(err.begin(), err.end());
+        return;
+    }
+
     auto s = j[RESULT].dump();
     r.result = decltype(r.result)(s.begin(), s.end());
 }
@@ -46,6 +55,11 @@ class ResponseMessage
     std::shared_ptr<std::vector<uint8_t>> result()
     {
         return std::make_shared<std::vector<uint8_t>>(m_resp.result);
+    }
+
+    std::optional<std::vector<uint8_t>> error()
+    {
+        return m_resp.error;
     }
 
     uint16_t id()

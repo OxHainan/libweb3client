@@ -113,6 +113,12 @@ void Client::init_jsonrpc()
         client->async_send_message(
             _message, Options(), [_respFunc](Error::Ptr _error, ResponseMessage::Ptr _msg, WsSession::Ptr _session) {
                 (void)_session;
+                if (auto err = _msg->error(); err) {
+                    if (!_error)
+                        _error = std::make_shared<Error>();
+                    _error->setErrorCode(WsError::UndefinedException);
+                    _error->setErrorMessage(std::string(err->begin(), err->end()));
+                }
                 _respFunc(_error, _msg ? _msg->result() : nullptr);
             });
     });

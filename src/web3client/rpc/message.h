@@ -136,6 +136,13 @@ inline std::string to_hex_string(const uint256_t& v)
 {
     return fmt::format("0x{}", intx::hex(v));
 }
+
+template <typename Iterator>
+std::string to_hex_string(Iterator begin, Iterator end)
+{
+    return fmt::format("0x{:02x}", fmt::join(begin, end, ""));
+}
+
 struct EthSyncingTag
 {
     static constexpr auto name = "eth_syncing";
@@ -177,7 +184,27 @@ struct EthGetStorageAtTag
 };
 
 using EthGetStorageAt = RpcBuilder<EthGetStorageAtTag, StorageAt, uint256_t>;
+struct SendRawTransactionParams
+{
+    std::vector<uint8_t> raw_transaction = {};
+};
+inline void to_json(nlohmann::json& j, const SendRawTransactionParams& s)
+{
+    j = nlohmann::json::array();
+    j.push_back(to_hex_string(s.raw_transaction.begin(), s.raw_transaction.end()));
+}
 
+inline void from_json(const nlohmann::json& j, SendRawTransactionParams& s)
+{
+    // s.address = j[0].get<decltype(s.address)>();
+    // s.key = j[1].get<decltype(s.key)>();
+    // s.block_id = j[2];
+}
+struct SendRawTransactionTag
+{
+    static constexpr auto name = "eth_sendRawTransaction";
+};
+using SendRawTransaction = RpcBuilder<SendRawTransactionTag, SendRawTransactionParams, std::string>;
 class RpcMessageFactory : public WsMessageFactory
 {
  public:
