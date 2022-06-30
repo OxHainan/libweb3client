@@ -194,17 +194,77 @@ inline void to_json(nlohmann::json& j, const SendRawTransactionParams& s)
     j.push_back(to_hex_string(s.raw_transaction.begin(), s.raw_transaction.end()));
 }
 
-inline void from_json(const nlohmann::json& j, SendRawTransactionParams& s)
-{
-    // s.address = j[0].get<decltype(s.address)>();
-    // s.key = j[1].get<decltype(s.key)>();
-    // s.block_id = j[2];
-}
+inline void from_json(const nlohmann::json& j, SendRawTransactionParams& s) {}
 struct SendRawTransactionTag
 {
     static constexpr auto name = "eth_sendRawTransaction";
 };
 using SendRawTransaction = RpcBuilder<SendRawTransactionTag, SendRawTransactionParams, std::string>;
+
+#ifdef WEB3_TEST
+struct GetAccountsTag
+{
+    static constexpr auto name = "eth_accounts";
+};
+using GetAccounts = RpcBuilder<GetAccountsTag, void, std::vector<std::string>>;
+struct SendTransactionParams
+{
+    struct MessageCall
+    {
+        std::string from = {};
+        std::string to;
+        std::string value;
+        std::string data = {};
+    };
+
+    MessageCall call;
+};
+
+inline void to_json(nlohmann::json& j, const SendTransactionParams::MessageCall& s)
+{
+    j = nlohmann::json::object();
+    j["from"] = s.from;
+    j["to"] = s.to;
+    j["value"] = s.value;
+    j["data"] = s.data;
+}
+
+inline void from_json(const nlohmann::json& j, SendTransactionParams::MessageCall& s) {}
+
+inline void to_json(nlohmann::json& j, const SendTransactionParams& s)
+{
+    j = nlohmann::json::array();
+    j.push_back(s.call);
+}
+
+inline void from_json(const nlohmann::json& j, SendTransactionParams& s) {}
+struct SendTransactionTag
+{
+    static constexpr auto name = "eth_sendTransaction";
+};
+using SendTransaction = RpcBuilder<SendTransactionTag, SendTransactionParams, std::string>;
+#endif // WEB3_TEST
+
+struct GetCodeParams
+{
+    std::vector<uint8_t> address;
+    BlockID block_id = DefaultBlockID;
+};
+inline void to_json(nlohmann::json& j, const GetCodeParams& s)
+{
+    j = nlohmann::json::array();
+    j.push_back(to_hex_string(s.address.begin(), s.address.end()));
+    j.push_back(s.block_id);
+}
+
+inline void from_json(const nlohmann::json& j, GetCodeParams& s) {}
+struct GetCodeTag
+{
+    static constexpr auto name = "eth_getCode";
+};
+
+using GetCode = RpcBuilder<GetCodeTag, GetCodeParams, std::string>;
+
 class RpcMessageFactory : public WsMessageFactory
 {
  public:
@@ -227,4 +287,5 @@ class RpcMessageFactory : public WsMessageFactory
  private:
     std::atomic<uint16_t> id{0};
 };
+
 } // namespace jsonrpc::ws
